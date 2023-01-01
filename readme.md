@@ -34,7 +34,7 @@ real tool and you will get in trouble if you use it
 illegally. I am not and will never be responsible for the
 way other people use the tools I create.
 
-This project is Copyright &copy; 2022 of kgsensei.
+This project is Copyright &copy; 2023 of kgsensei.
 
 You're welcome to fork this if you are going to make legitimate
 changes to the code. Always give credit to the original
